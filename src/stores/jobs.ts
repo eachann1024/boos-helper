@@ -1,7 +1,6 @@
-import { checkJobCache } from '@/composables/useApplying'
-import { requestDetail } from '@/composables/useApplying/utils'
-import { useHookVueData } from '@/composables/useVue'
 import { ref } from 'vue'
+import { checkJobCache } from '@/composables/useApplying'
+import { useHookVueData } from '@/composables/useVue'
 
 export type EncryptJobId = bossZpJobItemData['encryptJobId']
 export type JobStatus = 'pending' | 'wait' | 'running' | 'success' | 'error' | 'warn'

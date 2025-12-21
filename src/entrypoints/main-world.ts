@@ -1,10 +1,10 @@
+import axios from 'axios'
+import { createPinia } from 'pinia'
+import { createApp } from 'vue'
 import App from '@/App.vue'
 import { getRootVue } from '@/composables/useVue'
 import { loader } from '@/utils'
 import { logger } from '@/utils/logger'
-import axios from 'axios'
-import { createPinia } from 'pinia'
-import { createApp } from 'vue'
 
 async function main(router: any) {
   let module = {

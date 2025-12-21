@@ -1,6 +1,5 @@
 <script lang="ts" setup>
 import type { formElm, llmInfoVal } from '@/composables/useModel/type'
-import info from '@/components/icon/info.vue'
 import {
   ElInput,
   ElInputNumber,
@@ -8,6 +7,7 @@ import {
   ElSlider,
   ElSwitch,
 } from 'element-plus'
+import info from '@/components/icon/info.vue'
 
 const props = defineProps<{
   value: llmInfoVal<unknown, { required: boolean }>

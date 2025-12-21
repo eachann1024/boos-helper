@@ -1,11 +1,11 @@
 <script lang="tsx" setup>
+import { ElMessage } from 'element-plus'
 import Alert from '@/components/Alert'
 import formItem from '@/components/form/formItem.vue'
 import formSelect from '@/components/form/formSelect.vue'
 import { useCommon } from '@/composables/useCommon'
 import { formInfoData, useConf } from '@/stores/conf'
 import { amapGeocode } from '@/utils/amap'
-import { ElMessage } from 'element-plus'
 import aiVue from './ai.vue'
 
 const conf = useConf()

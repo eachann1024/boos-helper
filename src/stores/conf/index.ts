@@ -1,17 +1,16 @@
 import type { FormData } from '@/types/formData'
-import { useUser } from '@/stores/user'
-
-import deepmerge from '@/utils/deepmerge'
-
-import { exportJson, importJson } from '@/utils/jsonImportExport'
-import { logger } from '@/utils/logger'
-import { getCookieInfo } from '@/utils/message/cookie'
-
-import { getStorage, setStorage } from '@/utils/message/storage'
 import { watchThrottled } from '@vueuse/core'
+
 import { ElMessage } from 'element-plus'
+
 import { defineStore } from 'pinia'
 import { reactive, ref, toRaw } from 'vue'
+import { counter } from '@/message'
+
+import { useUser } from '@/stores/user'
+import deepmerge from '@/utils/deepmerge'
+import { exportJson, importJson } from '@/utils/jsonImportExport'
+import { logger } from '@/utils/logger'
 import { defaultFormData } from './info'
 
 export * from './info'
@@ -50,7 +49,7 @@ export const useConf = defineStore('conf', () => {
       const uid = user.getUserId()
       // eslint-disable-next-line eqeqeq
       if (uid != null && from.userId != null && from.userId != uid) {
-        const data = await getCookieInfo()
+        const data = await counter.cookieInfo()
         if (uid in data) {
           await user.changeUser(data[uid])
           ElMessage.success('匹配到账号配置 恢复中, 3s后刷新页面')
@@ -74,7 +73,7 @@ export const useConf = defineStore('conf', () => {
   }
 
   async function init() {
-    let from = await getStorage<Partial<FormData>>(formDataKey, {})
+    let from = await counter.storageGet<Partial<FormData>>(formDataKey, {})
     from = await formDataHandler(from) ?? from
     const data = deepmerge<FormData>(defaultFormData, from)
     Object.assign(formData, data)
@@ -92,7 +91,7 @@ export const useConf = defineStore('conf', () => {
   async function confSaving() {
     const v = jsonClone(formData)
     try {
-      await setStorage(formDataKey, v)
+      await counter.storageSet(formDataKey, v)
       logger.debug('formData保存', v)
       ElMessage.success('保存成功')
     }
@@ -102,7 +101,7 @@ export const useConf = defineStore('conf', () => {
   }
 
   async function confReload() {
-    const v = deepmerge<FormData>(defaultFormData, await getStorage(formDataKey, {}))
+    const v = deepmerge<FormData>(defaultFormData, await counter.storageGet(formDataKey, {}))
     deepmerge(formData, v, { clone: false })
     logger.debug('formData已重置')
     ElMessage.success('重置成功')
@@ -111,7 +110,7 @@ export const useConf = defineStore('conf', () => {
   async function confExport() {
     const data = deepmerge<FormData>(
       defaultFormData,
-      await getStorage(formDataKey, {}),
+      await counter.storageGet(formDataKey, {}),
     )
     exportJson(data, '打招呼配置')
   }

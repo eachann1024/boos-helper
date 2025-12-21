@@ -1,11 +1,11 @@
 <script lang="ts" setup>
 import type { modelData } from '@/composables/useModel'
+import { ElMessage } from 'element-plus'
+import { ref } from 'vue'
 import Alert from '@/components/Alert'
 import { llmIcon, useModel } from '@/composables/useModel'
 import deepmerge from '@/utils/deepmerge'
 import { exportJson, importJson } from '@/utils/jsonImportExport'
-import { ElMessage } from 'element-plus'
-import { ref } from 'vue'
 
 const show = defineModel<boolean>({ required: true })
 const modelStore = useModel()

@@ -1,7 +1,7 @@
 import type { FormDataRange } from '@/types/formData'
-import { GreetError, PublishError } from '@/types/deliverError'
 import axios from 'axios'
 import { ElMessage } from 'element-plus'
+import { GreetError, PublishError } from '@/types/deliverError'
 
 // const { userInfo } = useStore()
 

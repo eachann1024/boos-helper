@@ -1,9 +1,9 @@
 <script lang="ts" setup>
 import type { FormDataAi } from '@/types/formData'
+import { ref } from 'vue'
 import formSwitch from '@/components/form/formSwitch.vue'
 import { useCommon } from '@/composables/useCommon'
 import { formInfoData, useConf } from '@/stores/conf'
-import { ref } from 'vue'
 
 const conf = useConf()
 const { deliverLock } = useCommon()

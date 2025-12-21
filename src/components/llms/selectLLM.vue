@@ -1,8 +1,13 @@
 <script lang="tsx" setup>
+import type { CheckboxValueType } from 'element-plus'
 import type { prompt } from '@/composables/useModel/type'
 import type { MyJobListData } from '@/stores/jobs'
 import type { FormInfoAi } from '@/types/formData'
-import type { CheckboxValueType } from 'element-plus'
+import {
+  ElMessage,
+  ElMessageBox,
+} from 'element-plus'
+import { ref } from 'vue'
 import JobCard from '@/components/JobCard.vue'
 import { parseFiltering } from '@/composables/useApplying/utils'
 import { llmIcon, useModel } from '@/composables/useModel'
@@ -10,11 +15,6 @@ import { formInfoData, useConf } from '@/stores/conf'
 import { jobList } from '@/stores/jobs'
 import { useSignedKey } from '@/stores/signedKey'
 import { useUser } from '@/stores/user'
-import {
-  ElMessage,
-  ElMessageBox,
-} from 'element-plus'
-import { ref } from 'vue'
 
 const props = defineProps<{
   data: 'aiGreeting' | 'aiFiltering' | 'aiReply'

@@ -3,14 +3,14 @@ import type { ElInput } from 'element-plus'
 import type {
   RecycleScrollerInstance,
 } from 'vue-virtual-scroller'
-import { useChat } from '@/composables/useChat'
-import { useUser } from '@/stores/user'
 import { watchIgnorable } from '@vueuse/core'
 import { ref, watch } from 'vue'
 import {
   DynamicScroller,
   DynamicScrollerItem,
 } from 'vue-virtual-scroller'
+import { useChat } from '@/composables/useChat'
+import { useUser } from '@/stores/user'
 import 'vue-virtual-scroller/dist/vue-virtual-scroller.css'
 
 const { chatMessages, chatInput } = useChat()

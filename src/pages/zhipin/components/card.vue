@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import type { EncryptJobId } from '@/stores/jobs'
-import { jobList } from '@/stores/jobs'
 import { ref } from 'vue'
+import { jobList } from '@/stores/jobs'
 import { useDeliver } from '../hooks/useDeliver'
 
 const deliver = useDeliver()

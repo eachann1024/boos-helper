@@ -1,17 +1,17 @@
 <script lang="ts" setup>
-import type { NetConf } from '@/stores/signedKey'
 import type { Action } from 'element-plus'
-import logVue from '@/components/conf/log.vue'
-import storeVue from '@/components/conf/store.vue'
-import userVue from '@/components/conf/user.vue'
-import { store } from '@/components/icon/store'
-import { logger } from '@/utils/logger'
-import { getStorage, setStorage } from '@/utils/message/storage'
+import type { NetConf } from '@/stores/signedKey'
 import {
   ElMessage,
   ElMessageBox,
 } from 'element-plus'
 import { onMounted, ref } from 'vue'
+import logVue from '@/components/conf/log.vue'
+import storeVue from '@/components/conf/store.vue'
+import userVue from '@/components/conf/user.vue'
+import { store } from '@/components/icon/store'
+import { counter } from '@/message'
+import { logger } from '@/utils/logger'
 
 const confBox = ref(false)
 
@@ -24,7 +24,7 @@ const confs = {
 const confKey = ref<keyof typeof confs>('store')
 const dark = ref(false)
 
-getStorage('theme-dark', false).then((res) => {
+counter.storageGet('theme-dark', false).then((res) => {
   dark.value = res
 })
 
@@ -38,7 +38,7 @@ async function themeChange() {
     })
   }
   document.documentElement.classList.toggle('dark', dark.value)
-  await setStorage('theme-dark', dark.value)
+  await counter.storageSet('theme-dark', dark.value)
 }
 
 // logger.log(monkeyWindow, window, unsafeWindow);
@@ -61,7 +61,7 @@ onMounted(async () => {
 
   const protocol = 'boss-protocol'
   const protocol_val = '2025/06/14'
-  const protocol_date = await getStorage(protocol)
+  const protocol_date = await counter.storageGet<string>(protocol)
   if (protocol_date !== protocol_val) {
     ElMessageBox.alert(
       `1. 使用前先好好了解项目，阅读每一个标签和帮助,
@@ -88,7 +88,7 @@ Github开源地址: <a href="https://github.com/ocyss/boos-helper" target="_blan
           '--el-messagebox-width: unset; white-space: pre-wrap; width: unset;max-width: unset;' as never,
         callback: (action: Action) => {
           if (action === 'confirm') {
-            setStorage(protocol, protocol_val)
+            counter.storageSet(protocol, protocol_val)
           }
         },
       },

@@ -1,12 +1,12 @@
 <script lang="ts" setup>
-import type { components } from '@/types/openapi'
 import type { FetchResponse } from 'openapi-fetch'
-import { useSignedKey } from '@/stores/signedKey'
-import { useUser } from '@/stores/user'
+import type { components } from '@/types/openapi'
 import { useCountdown } from '@vueuse/core'
 import { useQRCode } from '@vueuse/integrations/useQRCode'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { events } from 'fetch-event-stream'
+import { useSignedKey } from '@/stores/signedKey'
+import { useUser } from '@/stores/user'
 import aiVue from './ai.vue'
 
 const signedKey = useSignedKey()

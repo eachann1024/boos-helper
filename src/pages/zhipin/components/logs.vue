@@ -2,8 +2,8 @@
 import type {
   TableV2Instance,
 } from 'element-plus'
-import { useLog } from '@/stores/log'
 import { ref } from 'vue'
+import { useLog } from '@/stores/log'
 
 const tableRef = ref<TableV2Instance>()
 const { filterData, columns, dialogData } = useLog()

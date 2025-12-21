@@ -1,7 +1,7 @@
-import elmGetter from '@/utils/elmGetter'
-import { logger } from '@/utils/logger'
 import { createPinia } from 'pinia'
 import { createApp } from 'vue'
+import elmGetter from '@/utils/elmGetter'
+import { logger } from '@/utils/logger'
 import uiVue from './components/ui.vue'
 import './index.scss'
 

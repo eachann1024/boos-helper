@@ -1,6 +1,6 @@
+import type { Handler, Pipeline, Step } from './type'
 import type { JobStatus } from '@/stores/jobs'
 import type { PipelineCacheItem, ProcessorType } from '@/types/pipelineCache'
-import type { Handler, Pipeline, Step } from './type'
 import { PipelineCacheManager } from '@/composables/usePipelineCache'
 import { JobAddressError, UnknownError } from '@/types/deliverError'
 import { amapDistance, amapGeocode } from '@/utils/amap'

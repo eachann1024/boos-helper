@@ -1,14 +1,14 @@
 <script lang="ts" setup>
 import type { modelData } from '@/composables/useModel'
 import type { llm } from '@/composables/useModel/type'
-import { llms, useModel } from '@/composables/useModel'
-import deepmerge, { jsonClone } from '@/utils/deepmerge'
-import { logger } from '@/utils/logger'
 import { reactiveComputed } from '@vueuse/core'
 import {
   ElMessage,
 } from 'element-plus'
 import { computed, ref } from 'vue'
+import { llms, useModel } from '@/composables/useModel'
+import deepmerge, { jsonClone } from '@/utils/deepmerge'
+import { logger } from '@/utils/logger'
 
 const props = defineProps<{
   model?: modelData

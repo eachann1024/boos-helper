@@ -8,8 +8,8 @@ export class RequestError extends Error {
     this.name = '请求错误'
   }
 }
-export type ResponseType =
-  | 'text'
+export type ResponseType
+  = | 'text'
   | 'json'
   | 'arraybuffer'
   | 'blob'
@@ -161,9 +161,9 @@ export async function request<TContext, TResponseType extends ResponseType = 'js
         }
 
         const result
-              = responseType === 'json'
-                ? await response.json()
-                : await response.text()
+          = responseType === 'json'
+            ? await response.json()
+            : await response.text()
 
         resolve(result)
       }).catch((e) => {

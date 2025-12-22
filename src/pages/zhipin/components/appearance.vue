@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import { useFavicon, useStorageAsync, useTitle } from '@vueuse/core'
+import { ElCheckbox } from 'element-plus'
 import { watch, watchEffect } from 'vue'
 import Alert from '@/components/Alert'
 import { useStatistics } from '@/composables/useStatistics'

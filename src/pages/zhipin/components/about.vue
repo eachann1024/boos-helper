@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import { ElImage, ElLink, ElSpace } from 'element-plus'
 </script>
 
 <template>
@@ -44,7 +45,7 @@
       </ElLink>
       <br>
       <br>
-      <el-space wrap>
+      <ElSpace wrap>
         <ElLink
           href="https://gai06vrtbc0.feishu.cn/share/base/form/shrcnmEq2fxH9hM44hqEnoeaj8g"
           target="_blank"
@@ -65,7 +66,7 @@
         >
           飞书交流群(已满)
         </ElLink> -->
-      </el-space>
+      </ElSpace>
     </div>
     <div
       data-help=" "

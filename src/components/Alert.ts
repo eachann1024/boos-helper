@@ -17,6 +17,7 @@ export default defineComponent({
       required: true,
     },
   },
+
   setup(props: ExtendedAlertProps, { slots }): () => VNode | null {
     const storageKey = computed(() => `local:alert:${props.id}`)
     const isVisible = ref(true)

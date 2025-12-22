@@ -1,6 +1,5 @@
 import type { TechwolfChatProtocol } from './type'
 import { ElMessage } from 'element-plus'
-import { logger } from '@/utils/logger'
 import { AwesomeMessage } from './type'
 
 interface MessageArgs {
@@ -59,9 +58,7 @@ export class Message {
 
   send() {
     if ('GeekChatCore' in window && window.GeekChatCore != null) {
-      // eslint-disable-next-line ts/no-unsafe-call
       const client = window.GeekChatCore.getInstance().getClient().client
-      // eslint-disable-next-line ts/no-unsafe-call
       client.send(this)
     }
     else if ('ChatWebsocket' in window && window.ChatWebsocket != null) {

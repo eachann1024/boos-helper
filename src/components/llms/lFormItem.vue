@@ -1,12 +1,7 @@
 <script lang="ts" setup>
 import type { formElm, llmInfoVal } from '@/composables/useModel/type'
-import {
-  ElInput,
-  ElInputNumber,
-  ElSelectV2,
-  ElSlider,
-  ElSwitch,
-} from 'element-plus'
+import { ElAlert, ElFormItem, ElIcon, ElInput, ElInputNumber, ElSelectV2, ElSlider, ElSwitch, ElText, ElTooltip } from 'element-plus'
+
 import info from '@/components/icon/info.vue'
 
 const props = defineProps<{
@@ -41,7 +36,7 @@ const { el, defaultConf } = getComponent(props.value.type)
 
 <template>
   <template v-if="value && 'alert' in value">
-    <el-alert
+    <ElAlert
       :title="value.label || label.toString()"
       :description="value.desc"
       :type="value.alert as any"
@@ -58,31 +53,31 @@ const { el, defaultConf } = getComponent(props.value.type)
       :depth="(depth || 0) + 1"
     />
   </template>
-  <el-form-item
+  <ElFormItem
     v-else-if="value"
     :required="value.required"
     :style="`margin-left: ${(props.depth || 0) * 10}px;`"
   >
     <template #label>
-      <el-text size="large">
+      <ElText size="large">
         {{ value.label || label }}
-      </el-text>
-      <el-tooltip
+      </ElText>
+      <ElTooltip
         v-if="value.desc"
         :content="`<span>${value.desc}</span>`"
         raw-content
       >
-        <el-icon style="margin-left: 8px">
+        <ElIcon style="margin-left: 8px">
           <info />
-        </el-icon>
-      </el-tooltip>
+        </ElIcon>
+      </ElTooltip>
     </template>
     <component
       :is="el"
       v-model="fromVal"
       v-bind="{ ...defaultConf, ...value.config }"
     />
-  </el-form-item>
+  </ElFormItem>
 </template>
 
 <style>

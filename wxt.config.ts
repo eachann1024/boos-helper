@@ -1,7 +1,4 @@
 import vueJsx from '@vitejs/plugin-vue-jsx'
-import AutoImport from 'unplugin-auto-import/vite'
-import { ElementPlusResolver } from 'unplugin-vue-components/resolvers'
-import Components from 'unplugin-vue-components/vite'
 import { defineConfig } from 'wxt'
 import { version } from './package.json'
 
@@ -38,14 +35,6 @@ export default defineConfig({
     },
     plugins: [
       vueJsx(),
-      AutoImport({
-        resolvers: [ElementPlusResolver()],
-      }),
-      Components({
-        resolvers: [ElementPlusResolver({
-          importStyle: 'sass',
-        })],
-      }),
     ],
     css: {
       preprocessorOptions: {

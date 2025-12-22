@@ -10,7 +10,6 @@ async function mountVue() {
   if (document.querySelector('#boss-helper-job')) {
     return
   }
-  // eslint-disable-next-line ts/no-unsafe-argument
   const app = createApp(uiVue)
   app.use(createPinia())
 

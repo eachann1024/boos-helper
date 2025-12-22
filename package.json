@@ -62,9 +62,7 @@
     "ts-proto": "^1.181.2",
     "typescript": "^5.9.3",
     "uid": "^2.0.2",
-    "unplugin-auto-import": "^0.17.8",
     "unplugin-element-plus": "^0.9.1",
-    "unplugin-vue-components": "^0.26.0",
     "vue-tsc": "^1.8.27",
     "wxt": "^0.20.13"
   }

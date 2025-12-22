@@ -24,7 +24,6 @@ async function main(router: any) {
   module.run()
   const helper = document.querySelector('#boss-helper')
   if (!helper) {
-    // eslint-disable-next-line ts/no-unsafe-argument
     const app = createApp(App)
     app.use(createPinia())
     const appEl = document.createElement('div')
@@ -41,7 +40,6 @@ async function start() {
 //   );
 
   const v = await getRootVue()
-  // eslint-disable-next-line ts/no-unsafe-call
   v.$router.afterHooks.push(main)
   void main(v.$route)
   let axiosLoad: () => void

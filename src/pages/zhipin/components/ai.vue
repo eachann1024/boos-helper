@@ -1,7 +1,10 @@
 <script lang="ts" setup>
 import type { FormDataAi } from '@/types/formData'
+import { ElButton, ElSpace } from 'element-plus'
 import { ref } from 'vue'
 import formSwitch from '@/components/form/formSwitch.vue'
+import configLLM from '@/components/llms/configLLM.vue'
+import selectLLM from '@/components/llms/selectLLM.vue'
 import { useCommon } from '@/composables/useCommon'
 import { formInfoData, useConf } from '@/stores/conf'
 

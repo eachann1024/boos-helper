@@ -1,6 +1,18 @@
 <script lang="ts" setup>
 import { useMouse, useMouseInElement } from '@vueuse/core'
-import { ElMessage } from 'element-plus'
+import {
+  ElBadge,
+  ElCheckbox,
+  ElConfigProvider,
+  ElLink,
+  ElMessage,
+  ElTabPane,
+  ElTabs,
+  ElTag,
+  ElText,
+  ElTooltip,
+} from 'element-plus'
+
 import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { useModel } from '@/composables/useModel'
 import { useStatistics } from '@/composables/useStatistics'
@@ -166,25 +178,25 @@ function openStore() {
 </script>
 
 <template>
-  <el-config-provider namespace="ehp">
+  <ElConfigProvider namespace="ehp">
     <h2 style="display: flex; align-items: center">
       Helper
-      <el-badge
+      <ElBadge
         :is-dot="isDot"
         :offset="[-2, 7]"
         style="cursor: pointer; display: inline-flex; margin: 0 4px"
         @click="openStore"
       >
-        <el-tag type="primary">
+        <ElTag type="primary">
           v{{ VITE_VERSION }} {{ isDot ? ' 有更新' : '' }}
-        </el-tag>
-      </el-badge>
-      <el-text v-if="todayData.total > 0" style="margin-right: 15px;">
+        </ElTag>
+      </ElBadge>
+      <ElText v-if="todayData.total > 0" style="margin-right: 15px;">
         今日投递: {{ todayData.success }}/{{ conf.formData.deliveryLimit.value }}
-      </el-text>
-      <el-text v-if="deliver.total > 0">
+      </ElText>
+      <ElText v-if="deliver.total > 0">
         当前页面处理: {{ deliver.current + 1 }}/{{ deliver.total }}
-      </el-text>
+      </ElText>
     </h2>
     <div
       style="
@@ -202,7 +214,7 @@ function openStore() {
         )"
         :key="item.key ?? item.data.title"
       >
-      <!-- <el-alert
+      <!-- <ElAlert
         v-if="now > GM_getValue(`netConf-${item.key}`, 0)"
         v-bind="item.data"
         @close="GM_setValue(`netConf-${item.key}`, now + 259200000)"
@@ -245,13 +257,13 @@ function openStore() {
       </ElTabPane>
       <ElTabPane v-if="signedKey.netConf && signedKey.netConf.feedback">
         <template #label>
-          <el-link
+          <ElLink
             size="large"
             style="height: 100%"
             @click.stop="tagOpen(signedKey.netConf.feedback)"
           >
             反馈
-          </el-link>
+          </ElLink>
         </template>
       </ElTabPane>
       <ElTabPane>
@@ -282,7 +294,7 @@ function openStore() {
       "
     />
   </Teleport> -->
-  </el-config-provider>
+  </ElConfigProvider>
 </template>
 
 <style lang="scss">

@@ -1,7 +1,9 @@
 <script lang="ts" setup>
 import type { ComponentPublicInstance } from 'vue'
 import type { EncryptJobId } from '@/stores/jobs'
+import { ElSwitch } from 'element-plus'
 import { ref, watch } from 'vue'
+import JobCard from '@/components/JobCard.vue'
 import { jobList } from '@/stores/jobs'
 import { useDeliver } from '../hooks/useDeliver'
 

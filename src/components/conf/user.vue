@@ -1,6 +1,18 @@
 <script lang="ts" setup>
 import type { CookieInfo } from '@/message'
-import { ElMessage, ElMessageBox } from 'element-plus'
+import {
+  ElAlert,
+  ElAvatar,
+  ElButton,
+  ElDialog,
+  ElMessage,
+  ElMessageBox,
+  ElPopconfirm,
+  ElTable,
+  ElTableColumn,
+  ElTag,
+} from 'element-plus'
+
 import { ref } from 'vue'
 
 import { useUser } from '@/stores/user'

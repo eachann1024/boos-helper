@@ -43,6 +43,7 @@ export interface logData {
   aiGreetingQ?: string
   aiGreetingR?: string | null
   aiGreetingA?: string
+  aiGreetingPrepared?: string
 }
 
 type logState = 'info' | 'success' | 'warning' | 'danger'

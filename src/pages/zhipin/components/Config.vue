@@ -2,7 +2,6 @@
 import type { PropType } from '#imports'
 import { defineComponent, ref } from '#imports'
 import {
-  ElAlert,
   ElButton,
   ElCheckbox,
   ElCollapse,
@@ -18,7 +17,6 @@ import {
   ElTooltip,
 } from 'element-plus'
 
-import Alert from '@/components/Alert'
 import formItem from '@/components/form/FormItem.vue'
 import formSelect from '@/components/form/FormSelect.vue'
 import { getCacheManager } from '@/composables/useApplying'
@@ -135,35 +133,27 @@ const SalaryRangeComponent = defineComponent({
 </script>
 
 <template>
-  <Alert
-    id="config-alert-1" style="margin-bottom: 10px" show-icon title="进行配置前都请先阅读完整的帮助文档，再进行配置，如有bug请反馈"
-    type="success"
-    description="滚动到底部，差不多150个岗位左右，也会自动停止, 刷新或者变更期望重新获取新的岗位即可。"
-  />
-  <Alert id="config-alert-2" style="margin-bottom: 10px" type="success" show-icon>
-    <template #title>
-      使用自定义招呼语前 推荐禁用boss直聘自带招呼语
-      <ElLink href="https://www.zhipin.com/web/geek/notify-set?type=greetSet" target="_blank" type="warning">
-        点我前往设置
-      </ElLink>
-    </template>
-  </Alert>
-  <Alert
-    id="config-alert-3" style="margin-bottom: 10px"
-    type="success"
-    description="所有配置选项皆有帮助提示，不懂用法请进入帮助模式进行查看，若是对帮助说明有疑问请反馈最好能给出改进意见。"
-  />
+  <div class="plain-tip plain-tip--success">
+    进行配置前都请先阅读完整的帮助文档，再进行配置，如有 bug 请反馈。滚动到底部差不多 150 个岗位左右会自动停止。
+  </div>
+  <div class="plain-tip plain-tip--success">
+    使用自定义招呼语前推荐禁用 boss 直聘自带招呼语：
+    <ElLink href="https://www.zhipin.com/web/geek/notify-set?type=greetSet" target="_blank" type="warning">
+      点我前往设置
+    </ElLink>
+  </div>
+  <div class="plain-tip plain-tip--success">
+    所有配置选项皆有帮助提示，不懂用法请进入帮助模式查看，若说明不清楚请反馈改进建议。
+  </div>
   <ElForm inline label-position="left" label-width="auto" :model="conf.formData" :disabled="deliverLock">
     <ElCollapse accordion>
       <ElCollapseItem title="筛选配置" name="1">
-        <Alert
-          id="filter-config-alert-enable" title="复选框打钩才会启用，别忘记打钩启用哦。保存也别忘了" type="success" show-icon
-          style="margin: 10px 0;"
-        />
-        <Alert
-          id="filter-config-alert-mode" title="排除和包含可点击切换，混合模式适用性过低不会考虑开发" type="success" show-icon
-          style="margin: 10px 0;"
-        />
+        <div class="plain-tip plain-tip--success">
+          复选框打钩才会启用，别忘记启用并保存。
+        </div>
+        <div class="plain-tip plain-tip--success">
+          排除和包含可点击切换，暂不支持混合模式。
+        </div>
 
         <ElSpace class="config-input" wrap style="width: 100%">
           <form-item
@@ -213,10 +203,16 @@ const SalaryRangeComponent = defineComponent({
                 </ElButton>
               </template>
               <div style="display: flex;flex-direction: column;gap: 10px;">
-                <ElAlert title="宽松匹配: 薪资范围有任何重叠即匹配, 如10-20K: 15-20K, 15-21k, 20-26k 都满足, 21-22k 不满足" type="info" show-icon :closable="false" />
-                <ElAlert title="严格匹配: 目标薪资需完全在职位范围内, 如10-20K: 10-15K 和15-20K 满足, 15-21k 不满足" type="info" show-icon :closable="false" />
+                <div class="plain-tip plain-tip--info">
+                  宽松匹配：薪资范围有任何重叠即匹配，如 10-20K 对 15-20K、15-21K、20-26K 都满足，21-22K 不满足。
+                </div>
+                <div class="plain-tip plain-tip--info">
+                  严格匹配：目标薪资需完全在职位范围内，如 10-20K 对 10-15K、15-20K 满足，15-21K 不满足。
+                </div>
                 <SalaryRangeComponent :value="conf.formData.salaryRange.value" unit="K" :show="true" />
-                <ElAlert title="计算值进行同步，算法固定. 日薪: /21.75, 时薪: /21.75/8" type="info" show-icon :closable="false" />
+                <div class="plain-tip plain-tip--info">
+                  计算值进行同步，算法固定：日薪 /21.75，时薪 /21.75/8。
+                </div>
                 <ElButton @click="syncSalaryRange">
                   同步
                 </ElButton>
@@ -247,27 +243,21 @@ const SalaryRangeComponent = defineComponent({
         </ElSpace>
       </ElCollapseItem>
       <ElCollapseItem title="地址配置" name="4">
-        <Alert id="config-amap-2" style="margin-bottom: 10px" show-icon type="info">
-          <template #title>
-            使用高德地图前 推荐结合工作地址包含使用, 需自行申请key,
-            <br>
-            <ElLink href="https://lbs.amap.com/dev/" target="_blank" type="warning">
-              https://lbs.amap.com/dev/
-            </ElLink>
-            创建应用 -> 添加key -> Web服务
-            <br>
-            每日免费配额足够使用
-          </template>
-        </Alert>
-        <Alert
-          id="config-amap-ai" style="margin-bottom: 10px" :closable="false" type="info" description="AI Prompt 参考如下语法(仅筛选可用):
-            直线距离: {{ amap.straightDistance }}km
-            驾车距离: {{ amap.drivingDistance }}km
-            驾车时间: {{ amap.drivingDuration }}分钟
-            步行距离: {{ amap.walkingDistance }}km
-            步行时间: {{ amap.walkingDuration }}分钟
-            "
-        />
+        <div class="plain-tip plain-tip--info">
+          使用高德地图前推荐结合工作地址包含使用，需自行申请 key：
+          <ElLink href="https://lbs.amap.com/dev/" target="_blank" type="warning">
+            https://lbs.amap.com/dev/
+          </ElLink>
+          创建应用 -> 添加 key -> Web 服务，每日免费配额足够使用。
+        </div>
+        <div class="plain-tip plain-tip--info" v-pre>
+          AI Prompt 参考如下语法（仅筛选可用）：
+          直线距离: {{ amap.straightDistance }}km
+          驾车距离: {{ amap.drivingDistance }}km
+          驾车时间: {{ amap.drivingDuration }}分钟
+          步行距离: {{ amap.walkingDistance }}km
+          步行时间: {{ amap.walkingDuration }}分钟
+        </div>
         <ElCheckbox
           v-bind="formInfoData.amap.enable" v-model="conf.formData.amap.enable" border
           style="margin-right: 10px;"
@@ -373,5 +363,24 @@ const SalaryRangeComponent = defineComponent({
 <style lang="scss" scoped>
 .ehp-space.config-input :deep(.ehp-space__item) {
   width: 48%;
+}
+
+.plain-tip {
+  margin-bottom: 10px;
+  padding: 8px 10px;
+  border-radius: 6px;
+  font-size: 13px;
+  line-height: 1.5;
+  white-space: pre-line;
+}
+
+.plain-tip--success {
+  background: #f0f9eb;
+  color: #3d6b1f;
+}
+
+.plain-tip--info {
+  background: #ecf5ff;
+  color: #1d4f91;
 }
 </style>

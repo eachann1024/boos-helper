@@ -6,7 +6,6 @@ import { computed, onMounted, ref } from '#imports'
 import { useCountdown } from '@vueuse/core'
 import { useQRCode } from '@vueuse/integrations/useQRCode'
 import {
-  ElAlert,
   ElButton,
   ElButtonGroup,
   ElDialog,
@@ -449,11 +448,9 @@ onMounted(() => {
 
 <template>
   <ElForm>
-    <ElAlert
-      style="margin-bottom: 10px" show-icon
-      title="所有功能全免费使用，无任何限制包括AI功能。"
-      description="但因脚本使用人数多维护难度大，也为了能照顾小白用户和脚本更好的维护推出密钥系统。并且代码整理完后也会继续开源供大家学习, 如购买出现问题可发邮件联系作者：boss-helper@ocyss.icu" type="success"
-    />
+    <div class="plain-tip plain-tip--success">
+      所有功能全免费使用，无任何限制包括 AI 功能。为提高维护质量和用户支持体验，当前使用密钥系统；如购买出现问题可发邮件：boss-helper@ocyss.icu
+    </div>
     <ElFormItem class="bh-input-group">
       <ElInput
         v-show="!signedKey"
@@ -577,13 +574,9 @@ onMounted(() => {
       <div class="order-info">
         <b>商品名：</b>{{ buyOrderName }}
       </div>
-      <ElAlert
-        title="请妥善保管密钥，丢失无法找回"
-        type="warning"
-        :closable="false"
-        show-icon
-        style="margin: 15px 0;"
-      />
+      <div class="plain-tip plain-tip--warning" style="margin: 15px 0;">
+        请妥善保管密钥，丢失无法找回。
+      </div>
       <ElInput
         v-model="buyResult.key.signed_key"
         type="textarea"
@@ -638,6 +631,24 @@ onMounted(() => {
     flex-direction: column;
     align-items: center;
     justify-content: center;
+}
+
+.plain-tip {
+    margin-bottom: 10px;
+    padding: 8px 10px;
+    border-radius: 6px;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.plain-tip--success {
+    background: #f0f9eb;
+    color: #3d6b1f;
+}
+
+.plain-tip--warning {
+    background: #fdf6ec;
+    color: #8a4f08;
 }
 </style>
 

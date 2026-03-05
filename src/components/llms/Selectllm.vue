@@ -32,7 +32,6 @@ import { jobList } from '@/stores/jobs'
 import { useSignedKey } from '@/stores/signedKey'
 import { useUser } from '@/stores/user'
 import { logger } from '@/utils/logger'
-import Alert from '../Alert'
 
 const props = defineProps<{
   data: 'aiGreeting' | 'aiFiltering' | 'aiReply'
@@ -326,9 +325,9 @@ async function copyOnlineResume() {
     </div>
 
     <ElText v-if="singleMode !== 'vip'" style="margin: 20px 0" tag="div">
-      <Alert v-if="currentModel?.startsWith('vip-')" id="vip-alert" title="注意" type="warning">
+      <div v-if="currentModel?.startsWith('vip-')" class="plain-tip">
         会员模型暂时不支持输出 思考过程, 比如deepseekR1，但是不影响模型能力
-      </Alert>
+      </div>
       使用
       <ElLink
         type="primary"
@@ -561,5 +560,15 @@ async function copyOnlineResume() {
 
 .ehp-message-box__message{
   width: 100%;
+}
+
+.plain-tip {
+  margin-bottom: 10px;
+  padding: 8px 10px;
+  border-radius: 6px;
+  background: #fdf6ec;
+  color: #8a4f08;
+  font-size: 13px;
+  line-height: 1.5;
 }
 </style>

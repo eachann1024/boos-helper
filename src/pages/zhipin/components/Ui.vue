@@ -208,20 +208,6 @@ function openStore() {
     "
       :style="boxStyles"
     />
-    <div v-if="signedKey.netConf && signedKey.netConf.notification" class="netAlerts">
-      <template
-        v-for="item in signedKey.netConf.notification.filter(
-          (item) => item.type === 'alert',
-        )"
-        :key="item.key ?? item.data.title"
-      >
-      <!-- <ElAlert
-        v-if="now > GM_getValue(`netConf-${item.key}`, 0)"
-        v-bind="item.data"
-        @close="GM_setValue(`netConf-${item.key}`, now + 259200000)"
-      /> -->
-      </template>
-    </div>
     <ElTooltip :visible="helpVisible && !isOutside" :virtual-ref="triggerRef">
       <template #content>
         <div :style="`width: auto;max-width:${boxStyles.width};font-size:17px;`">

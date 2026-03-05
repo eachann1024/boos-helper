@@ -2,7 +2,6 @@
 import { useFavicon, useStorageAsync, useTitle } from '@vueuse/core'
 import { ElCheckbox } from 'element-plus'
 import { watch, watchEffect } from 'vue'
-import Alert from '@/components/Alert'
 import { useStatistics } from '@/composables/useStatistics'
 import { ExtStorage } from '@/message'
 import { useConf } from '@/stores/conf'
@@ -90,11 +89,9 @@ watch(() => conf.value.listSink, (val) => {
 
 <template>
   <div>
-    <Alert
-      id="appearance-alert-1" style="margin-bottom: 10px"
-      type="success"
-      description="此处提供一些便捷的外观调整功能。目前出于开发阶段, 暂无帮助文档，自行探索"
-    />
+    <div class="plain-tip">
+      此处提供一些便捷的外观调整功能。当前仍在迭代阶段，可按需自行探索。
+    </div>
     <ElCheckbox v-model="conf.hideHeader" label="隐藏头" border />
     <ElCheckbox v-model="conf.changeIcon" label="更换图标" border />
     <ElCheckbox v-model="conf.dynamicTitle" label="动态标题" border />
@@ -103,4 +100,14 @@ watch(() => conf.value.listSink, (val) => {
   </div>
 </template>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+.plain-tip {
+  margin-bottom: 10px;
+  padding: 8px 10px;
+  border-radius: 6px;
+  background: #f0f9eb;
+  color: #3d6b1f;
+  font-size: 13px;
+  line-height: 1.5;
+}
+</style>

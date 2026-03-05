@@ -3,7 +3,6 @@ import type { modelData } from '@/composables/useModel'
 import { ElAvatar, ElButton, ElDialog, ElIcon, ElMessage, ElTable, ElTableColumn, ElText,
 } from 'element-plus'
 import { ref } from 'vue'
-import Alert from '@/components/Alert'
 import { llmIcon, useModel } from '@/composables/useModel'
 import deepmerge, { jsonClone } from '@/utils/deepmerge'
 import { exportJson, importJson } from '@/utils/jsonImportExport'
@@ -84,9 +83,9 @@ function importllm() {
     destroy-on-close
     :z-index="20"
   >
-    <Alert id="llm-config-alert" title="注意" type="warning">
+    <div class="plain-tip">
       会员模型暂时不支持输出 思考过程, 比如deepseekR1，但是不影响模型能力
-    </Alert>
+    </div>
     <ElTable :data="modelStore.modelData" style="width: 100%" table-layout="auto">
       <ElTableColumn label="模型">
         <template #default="scope">
@@ -168,4 +167,13 @@ function importllm() {
   </ElDialog>
 </template>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+.plain-tip {
+  margin-bottom: 10px;
+  padding: 8px 10px;
+  border-radius: 6px;
+  background: #fdf6ec;
+  color: #8a4f08;
+  font-size: 13px;
+}
+</style>

@@ -1,6 +1,5 @@
 <script lang="ts" setup>
 import {
-  ElAlert,
   ElButton,
   ElButtonGroup,
   ElCol,
@@ -135,7 +134,9 @@ onMounted(() => {
 </script>
 
 <template>
-  <ElAlert style="margin-bottom: 10px" title="数据并不完全准确，投递上限根据自身情况调整，过高的上限也许会适得其反" type="warning" />
+  <div class="statistics-tip">
+    数据并不完全准确，投递上限请按自身情况调整，过高上限可能适得其反。
+  </div>
   <ElRow :gutter="20">
     <ElCol :span="5">
       <ElStatistic
@@ -246,4 +247,14 @@ onMounted(() => {
   </div>
 </template>
 
-<style lang="scss"></style>
+<style lang="scss">
+.statistics-tip {
+  margin-bottom: 10px;
+  padding: 8px 10px;
+  border-radius: 6px;
+  background: #fdf6ec;
+  color: #8a4f08;
+  font-size: 13px;
+  line-height: 1.5;
+}
+</style>

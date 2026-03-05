@@ -1,7 +1,6 @@
 <script lang="ts" setup>
 import type { CookieInfo } from '@/message'
 import {
-  ElAlert,
   ElAvatar,
   ElButton,
   ElDialog,
@@ -113,21 +112,15 @@ function handleCurrentChange(val: CookieInfo | undefined) {
     destroy-on-close
     :z-index="20"
   >
-    <ElAlert
-      title="使用该功能将会明文存储cookie信息,可能包含隐私信息"
-      type="warning"
-      style="margin: 6px 0"
-    />
-    <ElAlert
-      title="每个用户都有自己的相关配置但历史投递等信息将全局共享. 如果切换后是未登陆状态大概率是过期了, 再次登陆即可"
-      type="info"
-      style="margin: 6px 0"
-    />
-    <ElAlert
-      title="不要在未登录的情况下进行切换和创建, 否则当前的配置无法进行保存"
-      type="info"
-      style="margin: 6px 0"
-    />
+    <div class="plain-tip plain-tip--warning">
+      使用该功能会明文存储 cookie 信息，可能包含隐私数据。
+    </div>
+    <div class="plain-tip plain-tip--info">
+      每个用户有独立配置，但历史投递信息会全局共享。切换后若未登录通常是 cookie 过期，重新登录即可。
+    </div>
+    <div class="plain-tip plain-tip--info">
+      不要在未登录状态下切换或创建，否则当前配置可能无法保存。
+    </div>
     <ElTable
       :data="user.cookieTableData.value"
       style="width: 100%"
@@ -213,4 +206,22 @@ function handleCurrentChange(val: CookieInfo | undefined) {
   </ElDialog>
 </template>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+.plain-tip {
+  margin: 6px 0;
+  padding: 8px 10px;
+  border-radius: 6px;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.plain-tip--warning {
+  background: #fdf6ec;
+  color: #8a4f08;
+}
+
+.plain-tip--info {
+  background: #ecf5ff;
+  color: #1d4f91;
+}
+</style>

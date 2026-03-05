@@ -1,3 +1,4 @@
+import type { modelData } from '@/composables/useModel'
 import type { FormData } from '@/types/formData'
 import { watchThrottled } from '@vueuse/core'
 
@@ -5,6 +6,7 @@ import { ElMessage } from 'element-plus'
 
 import { defineStore } from 'pinia'
 import { reactive, ref, toRaw } from 'vue'
+import { confModelKey, useModel } from '@/composables/useModel'
 import { counter } from '@/message'
 
 import { useUser } from '@/stores/user'
@@ -17,9 +19,36 @@ export * from './info'
 
 export const formDataKey = 'local:web-geek-job-FormData'
 
+interface ConfExportPayload {
+  __boosHelperExport: 'config'
+  schemaVersion: 1
+  exportedAt: string
+  formData: FormData
+  modelData: modelData[]
+}
+
+function isConfExportPayload(data: unknown): data is ConfExportPayload {
+  if (!data || typeof data !== 'object') {
+    return false
+  }
+  const payload = data as Partial<ConfExportPayload>
+  return (
+    payload.__boosHelperExport === 'config'
+    && payload.schemaVersion === 1
+    && !!payload.formData
+    && typeof payload.formData === 'object'
+    && Array.isArray(payload.modelData)
+  )
+}
+
 export const useConf = defineStore('conf', () => {
   const formData: FormData = reactive(defaultFormData)
   const isLoaded = ref(false)
+
+  async function persistCurrentConfig(config: FormData) {
+    const snapshot = jsonClone(config)
+    await counter.storageSet(formDataKey, snapshot)
+  }
 
   const FROM_VERSION: [string, (from: Partial<FormData>) => Partial<FormData>][] = [
     ['20250826', (from) => {
@@ -91,7 +120,7 @@ export const useConf = defineStore('conf', () => {
   async function confSaving() {
     const v = jsonClone(formData)
     try {
-      await counter.storageSet(formDataKey, v)
+      await persistCurrentConfig(v)
       logger.debug('formData保存', v)
       ElMessage.success('保存成功, 3s 之后自动刷新')
       setTimeout(() => {
@@ -103,6 +132,10 @@ export const useConf = defineStore('conf', () => {
     }
   }
 
+  async function confPersistNow() {
+    await persistCurrentConfig(formData)
+  }
+
   async function confReload() {
     const v = deepmerge<FormData>(defaultFormData, await counter.storageGet(formDataKey, {}))
     deepmerge(formData, v, { clone: false })
@@ -111,21 +144,49 @@ export const useConf = defineStore('conf', () => {
   }
 
   async function confExport() {
+    const modelStore = useModel()
     const data = deepmerge<FormData>(
       defaultFormData,
-      await counter.storageGet(formDataKey, {}),
+      jsonClone(formData),
     )
-    exportJson(data, '打招呼配置')
+    const exportPayload: ConfExportPayload = {
+      __boosHelperExport: 'config',
+      schemaVersion: 1,
+      exportedAt: new Date().toISOString(),
+      formData: data,
+      modelData: jsonClone(modelStore.modelData),
+    }
+    exportJson(exportPayload, '打招呼配置')
   }
 
   async function confImport() {
-    let jsonData = await importJson<Partial<FormData>>()
+    const imported = await importJson<Partial<FormData> | ConfExportPayload>()
+    let jsonData: Partial<FormData>
+    let importedModelData: modelData[] | undefined
+
+    if (isConfExportPayload(imported)) {
+      jsonData = imported.formData
+      importedModelData = imported.modelData
+    }
+    else {
+      jsonData = imported
+    }
 
     jsonData.userId = undefined
     jsonData = await formDataHandler(jsonData) ?? jsonData
-    // await setStorage(formDataKey, jsonData)
     deepmerge(formData, jsonData, { clone: false })
-    ElMessage.success('导入成功, 切记要手动保存哦')
+    await persistCurrentConfig(formData)
+
+    if (importedModelData != null) {
+      const modelStore = useModel()
+      const modelSnapshot = jsonClone(importedModelData)
+      modelStore.modelData = modelSnapshot
+      await counter.storageSet(confModelKey, modelSnapshot)
+      ElMessage.success('导入成功（含AI模型），已自动保存')
+      return
+    }
+
+    ElMessage.success('导入成功，已自动保存')
   }
 
   function confDelete() {
@@ -137,6 +198,7 @@ export const useConf = defineStore('conf', () => {
   return {
     confInit: init,
     confSaving,
+    confPersistNow,
     confReload,
     confExport,
     confImport,

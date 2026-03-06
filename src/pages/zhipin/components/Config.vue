@@ -133,28 +133,9 @@ const SalaryRangeComponent = defineComponent({
 </script>
 
 <template>
-  <div class="plain-tip plain-tip--success">
-    进行配置前都请先阅读完整的帮助文档，再进行配置，如有 bug 请反馈。滚动到底部差不多 150 个岗位左右会自动停止。
-  </div>
-  <div class="plain-tip plain-tip--success">
-    使用自定义招呼语前推荐禁用 boss 直聘自带招呼语：
-    <ElLink href="https://www.zhipin.com/web/geek/notify-set?type=greetSet" target="_blank" type="warning">
-      点我前往设置
-    </ElLink>
-  </div>
-  <div class="plain-tip plain-tip--success">
-    所有配置选项皆有帮助提示，不懂用法请进入帮助模式查看，若说明不清楚请反馈改进建议。
-  </div>
   <ElForm inline label-position="left" label-width="auto" :model="conf.formData" :disabled="deliverLock">
     <ElCollapse accordion>
       <ElCollapseItem title="筛选配置" name="1">
-        <div class="plain-tip plain-tip--success">
-          复选框打钩才会启用，别忘记启用并保存。
-        </div>
-        <div class="plain-tip plain-tip--success">
-          排除和包含可点击切换，暂不支持混合模式。
-        </div>
-
         <ElSpace class="config-input" wrap style="width: 100%">
           <form-item
             v-bind="formInfoData.company" v-model:enable="conf.formData.company.enable"
@@ -250,7 +231,7 @@ const SalaryRangeComponent = defineComponent({
           </ElLink>
           创建应用 -> 添加 key -> Web 服务，每日免费配额足够使用。
         </div>
-        <div class="plain-tip plain-tip--info" v-pre>
+        <div v-pre class="plain-tip plain-tip--info">
           AI Prompt 参考如下语法（仅筛选可用）：
           直线距离: {{ amap.straightDistance }}km
           驾车距离: {{ amap.drivingDistance }}km

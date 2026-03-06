@@ -8,6 +8,7 @@
   "description": "Boss直聘助手, 皆在减少投递简历的麻烦, 和提高投递简历的效率,技术栈使用VIte + Vue3 + element-plus",
   "scripts": {
     "dev": "wxt",
+    "dev:chrome:persistent": "node scripts/prepare-chrome-profile.mjs && wxt -b chrome",
     "dev:edge": "wxt -b edge",
     "dev:firefox": "wxt -b firefox",
     "postinstall": "wxt prepare",

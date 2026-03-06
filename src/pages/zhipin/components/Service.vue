@@ -449,7 +449,7 @@ onMounted(() => {
 <template>
   <ElForm>
     <div class="plain-tip plain-tip--success">
-      所有功能全免费使用，无任何限制包括 AI 功能。为提高维护质量和用户支持体验，当前使用密钥系统；如购买出现问题可发邮件：boss-helper@ocyss.icu
+      所有功能全免费使用，无任何限制包括 AI 功能。为提高维护质量和用户支持体验，当前使用密钥系统；如购买出现问题可发邮件：boss-helper@eachann.dev
     </div>
     <ElFormItem class="bh-input-group">
       <ElInput

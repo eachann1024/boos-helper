@@ -69,7 +69,14 @@ export function useUser() {
   }
 
   async function initUser() {
-    const v = await getRootVue()
+    let v: any
+    try {
+      v = await getRootVue()
+    }
+    catch (error) {
+      logger.warn('未找到vue根组件，跳过用户信息初始化', error)
+      return null
+    }
     const now = Date.now()
     await new Promise((resolve) => {
       const interval = setInterval(() => {

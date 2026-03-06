@@ -25,7 +25,6 @@ import { logger } from '@/utils/logger'
 import { useDeliver } from '../hooks/useDeliver'
 import { usePager } from '../hooks/usePager'
 
-import About from './About.vue'
 import Appearance from './Appearance.vue'
 import Card from './Card.vue'
 import Config from './Config.vue'
@@ -169,29 +168,16 @@ function tagOpen(url: string) {
 }
 const VITE_VERSION = __APP_VERSION__
 
-const isDot = computed(() => {
-  return (signedKey.netConf?.version ?? '0') > VITE_VERSION
-})
 
-function openStore() {
-  window.__q_openStore?.()
-}
 </script>
 
 <template>
   <ElConfigProvider namespace="ehp">
     <h2 style="display: flex; align-items: center">
       Helper
-      <ElBadge
-        :is-dot="isDot"
-        :offset="[-2, 7]"
-        style="cursor: pointer; display: inline-flex; margin: 0 4px"
-        @click="openStore"
-      >
-        <ElTag type="primary">
-          v{{ VITE_VERSION }} {{ isDot ? ' 有更新' : '' }}
-        </ElTag>
-      </ElBadge>
+      <ElTag type="primary" style="margin: 0 4px">
+        v{{ VITE_VERSION }}
+      </ElTag>
       <ElText v-if="todayData.total > 0" style="margin-right: 15px;">
         今日投递: {{ todayData.success }}/{{ conf.formData.deliveryLimit.value }}
       </ElText>
@@ -234,13 +220,6 @@ function openStore() {
       </ElTabPane>
       <ElTabPane label="日志" data-help="反正你也不看">
         <Logs />
-      </ElTabPane>
-      <ElTabPane
-        label="关于&赞赏"
-        class="hp-about-box"
-        data-help="项目是写不完美的,但总要去追求完美"
-      >
-        <About />
       </ElTabPane>
       <ElTabPane v-if="signedKey.netConf && signedKey.netConf.feedback">
         <template #label>
@@ -289,17 +268,6 @@ function openStore() {
   margin-bottom: 8px;
   * {
     user-select: none;
-  }
-}
-
-.hp-about-box {
-  display: flex;
-  .hp-about {
-    display: flex;
-    flex-direction: column;
-  }
-  html.dark & {
-    color: #cfd3dc;
   }
 }
 

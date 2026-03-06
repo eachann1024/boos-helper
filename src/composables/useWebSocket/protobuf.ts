@@ -10,9 +10,71 @@ interface MessageArgs {
   image?: string // url
 }
 
+export interface MessageSenderInfo {
+  label: string
+  send: (message: Message) => Promise<void>
+}
+
+export interface MessageSendOptions {
+  waitForChannelMs?: number
+  pollIntervalMs?: number
+}
+
 export interface MessageSendResult {
   ok: boolean
   message: string
+  channel?: string
+  confirmed?: boolean
+}
+
+function sleep(ms: number) {
+  return new Promise(resolve => setTimeout(resolve, ms))
+}
+
+export function getAvailableMessageSenders(): MessageSenderInfo[] {
+  const senders: MessageSenderInfo[] = []
+  const socketReadyState = window.socket?.readyState
+  const canUseChatWebsocket = typeof window.ChatWebsocket?.send === 'function'
+    && (socketReadyState == null || socketReadyState === WebSocket.OPEN)
+
+  if (canUseChatWebsocket) {
+    senders.push({
+      label: 'ChatWebsocket',
+      send: async (message: Message) => {
+        await Promise.resolve(window.ChatWebsocket!.send(message))
+      },
+    })
+  }
+
+  const geekClient = window.GeekChatCore?.getInstance?.()?.getClient?.()?.client
+  if (typeof geekClient?.send === 'function') {
+    senders.push({
+      label: 'GeekChatCore',
+      send: async (message: Message) => {
+        await Promise.resolve(geekClient.send(message))
+      },
+    })
+  }
+
+  return senders
+}
+
+export async function waitForMessageSenders(timeoutMs = 0, pollIntervalMs = 150): Promise<MessageSenderInfo[]> {
+  let senders = getAvailableMessageSenders()
+  if (senders.length > 0 || timeoutMs <= 0) {
+    return senders
+  }
+
+  const endAt = Date.now() + timeoutMs
+  while (Date.now() < endAt) {
+    await sleep(pollIntervalMs)
+    senders = getAvailableMessageSenders()
+    if (senders.length > 0) {
+      return senders
+    }
+  }
+
+  return senders
 }
 
 export class Message {
@@ -61,47 +123,37 @@ export class Message {
     return this.msg.buffer.slice(0, this.msg.byteLength) as ArrayBuffer
   }
 
-  async send(): Promise<MessageSendResult> {
-    try {
-      if ('GeekChatCore' in window && window.GeekChatCore != null) {
-        const client = window.GeekChatCore.getInstance().getClient().client
-        await Promise.resolve(client.send(this))
-        return { ok: true, message: 'send success' }
-      }
-      else if ('ChatWebsocket' in window && window.ChatWebsocket != null) {
-        await Promise.resolve(window.ChatWebsocket.send(this))
-        return { ok: true, message: 'send success' }
-      }
-      // else if (window.EventBus != null) { // 2025-12-22 失效，疑似boss bug。暂时禁用
-      //   window.EventBus.publish('CHAT_SEND_TEXT', {
-      //     uid: this.args.to_uid,
-      //     encryptUid: this.args.to_name,
-      //     message: this.args.content,
-      //     msg: this.args.content,
-      //   }, () => {
-      //     logger.debug('消息发送成功', this)
-      //   }, () => {
-      //     logger.error('消息发送失败', this)
-      //   })
-      // }
-      // else if (window.__q_chatSend != null) { // 扩展限制，不能远程加载，暂不考虑实现
-      //   // 当无渠道时，从网络加载临时补丁
-      //   window.__q_chatSend.call(this).then(() => {
-      //     logger.debug('消息发送成功', this)
-      //   }, () => {
-      //     logger.debug('消息发送失败', this)
-      //   })
-      // }
-      else {
-        const message = '无可用发送渠道，请等待作者修复。可暂时关闭招呼语功能'
-        ElMessage.error(message)
-        return { ok: false, message }
-      }
-    }
-    catch (error) {
-      const message = error instanceof Error ? error.message : String(error)
-      ElMessage.error(`消息发送失败: ${message}`)
+  async send(options: MessageSendOptions = {}): Promise<MessageSendResult> {
+    const senders = await waitForMessageSenders(
+      options.waitForChannelMs ?? 0,
+      options.pollIntervalMs ?? 150,
+    )
+
+    if (senders.length === 0) {
+      const message = '当前页面聊天通道未就绪，请手动打开聊天窗口后重试'
+      ElMessage.error(message)
       return { ok: false, message }
     }
+
+    const errors: string[] = []
+    for (const sender of senders) {
+      try {
+        await sender.send(this)
+        return {
+          ok: true,
+          message: `已调用 ${sender.label} 发送通道，请以聊天窗口实际结果为准`,
+          channel: sender.label,
+          confirmed: false,
+        }
+      }
+      catch (error) {
+        const message = error instanceof Error ? error.message : String(error)
+        errors.push(`${sender.label}: ${message}`)
+      }
+    }
+
+    const message = errors.join('；') || '消息发送失败'
+    ElMessage.error(`消息发送失败: ${message}`)
+    return { ok: false, message }
   }
 }

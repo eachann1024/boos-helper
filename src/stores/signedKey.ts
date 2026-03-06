@@ -10,6 +10,7 @@ import { watch } from 'vue'
 import { useModel } from '@/composables/useModel'
 import { counter } from '@/message'
 import { useUser } from '@/stores/user'
+import { jsonClone } from '@/utils/deepmerge'
 import { logger } from '@/utils/logger'
 
 type SignedKeyInfo = components['schemas']['KeyInfo']
@@ -50,6 +51,11 @@ export interface NotificationNotification {
     url?: string
     duration?: number
   }
+}
+
+interface SignedModelCache {
+  fetchedAt: string
+  models: modelData[]
 }
 
 // logger.debug("import.meta.env",import.meta.env)
@@ -93,7 +99,7 @@ export function signedKeyReqHandler(data: any, message = true): string | undefin
 }
 
 export type Client = ReturnType<typeof createClient<paths>>
-const baseUrl = (true || import.meta.env.PROD || import.meta.env.TEST || import.meta.env.WXT_TEST) ? 'https://boss-helper.ocyss.icu' : 'http://localhost:8002'
+const baseUrl = (true || import.meta.env.PROD || import.meta.env.TEST || import.meta.env.WXT_TEST) ? 'https://boss-helper.eachann.dev' : 'http://localhost:8002'
 
 export const useSignedKey = defineStore('signedKey', () => {
   const signedKey = ref<string | null>(null)
@@ -101,12 +107,91 @@ export const useSignedKey = defineStore('signedKey', () => {
   const signedKeyInfo = ref<SignedKeyInfo>()
   const signedKeyStorageKey = 'sync:signedKey'
   const signedKeyInfoStorageKey = 'sync:signedKeyInfo'
+  const signedModelSyncError = ref('')
+  const isSignedModelSyncing = ref(false)
   const user = useUser()
   const netConf = ref<NetConf>()
+  let signedModelSyncPromise: Promise<void> | null = null
 
   const netNotificationMap = new Map<string, boolean>()
 
   const client = createClient<paths>({ baseUrl })
+
+  function getResolvedToken(token?: string) {
+    return token ?? signedKey.value ?? signedKeyBak.value ?? null
+  }
+
+  function getSignedModelCacheKey(token: string) {
+    return `local:signed-model-cache:${sdbmCode(token)}`
+  }
+
+  function buildAuthHeaders(token?: string) {
+    const resolvedToken = getResolvedToken(token)
+    const headers: Record<string, string | undefined> = {}
+    if (resolvedToken) {
+      headers.Authorization = `Bearer ${resolvedToken}`
+    }
+    const uid = user.getUserId()
+    if (uid != null) {
+      headers.BossHelperUserID = uid.toString()
+    }
+    return headers
+  }
+
+  function applySignedKeyState(token: string, info?: SignedKeyInfo) {
+    signedKeyBak.value = token
+    const userId = user.getUserId()?.toString()
+    if (userId == null) {
+      return
+    }
+    const matchedUser = info?.users?.find(item => item.user_id === userId)
+    signedKey.value = matchedUser ? token : null
+  }
+
+  async function restoreSignedModelCache(token: string) {
+    const cache = await counter.storageGet<SignedModelCache>(getSignedModelCacheKey(token))
+    if (cache?.models?.length) {
+      useModel().mergeModelData(cache.models)
+    }
+  }
+
+  async function persistSignedModelCache(token: string, models: modelData[]) {
+    await counter.storageSet<SignedModelCache>(getSignedModelCacheKey(token), {
+      fetchedAt: new Date().toISOString(),
+      models: jsonClone(models),
+    })
+  }
+
+  async function syncSignedModels(token?: string) {
+    const resolvedToken = getResolvedToken(token)
+    if (resolvedToken == null) {
+      return false
+    }
+    const resp = await client.GET('/v1/llm/model_list', {
+      headers: buildAuthHeaders(resolvedToken),
+    })
+    const errMsg = signedKeyReqHandler(resp, false)
+    if (errMsg != null) {
+      throw new Error(errMsg)
+    }
+    const models = (resp.data as modelData[] | undefined) ?? []
+    useModel().mergeModelData(models)
+    await persistSignedModelCache(resolvedToken, models)
+    return true
+  }
+
+  async function syncNetConf() {
+    try {
+      const { data } = await client.GET('/config')
+      netConf.value = data as NetConf
+      window.__q_netConf = () => netConf.value
+      const now = new Date().getTime()
+      await Promise.all(netConf.value?.notification.map(async item => netNotification(item, now)) ?? [])
+    }
+    catch (error) {
+      logger.warn('刷新在线配置失败', error)
+    }
+  }
 
   const authMiddleware: Middleware = {
     async onRequest({ request }) {
@@ -186,67 +271,94 @@ export const useSignedKey = defineStore('signedKey', () => {
   }
 
   async function getSignedKeyInfo(token?: string) {
-    const headers: Record<string, string | undefined> = {
-      Authorization: `Bearer ${token ?? signedKey.value}`,
-    }
-    if (token == null && signedKey.value == null) {
-      delete headers.Authorization
-    }
-
-    const data = await client.GET('/v1/key/info', {
-      headers,
+    const resp = await client.GET('/v1/key/info', {
+      headers: buildAuthHeaders(token),
     })
-    signedKeyReqHandler(data)
-    return data.data
+    const errMsg = signedKeyReqHandler(resp, false)
+    if (errMsg != null) {
+      throw new Error(errMsg)
+    }
+    return resp.data
   }
 
   async function refreshSignedKeyInfo(token?: string) {
-    void client.GET('/config')
-      .then(async ({ data }) => {
-        netConf.value = data as NetConf
-        window.__q_netConf = () => netConf.value
-        const now = new Date().getTime()
-        return Promise.all(netConf.value?.notification.map(async item => netNotification(item, now)) ?? [])
-      })
-    if (token == null && (signedKey.value == null || signedKey.value === '')) {
+    void syncNetConf()
+    const resolvedToken = getResolvedToken(token)
+    if (resolvedToken == null) {
       return false
     }
-    const model = useModel()
-    void client.GET('/v1/llm/model_list')
-      .then(async ({ data }) => {
-        model.modelData = [...model.modelData, ...(data as modelData[] ?? []).filter(item => !model.modelData.some(m => m.key === item.key))]
-      })
+    try {
+      await syncSignedModels(resolvedToken)
+      const data = await getSignedKeyInfo(resolvedToken)
+      signedKeyInfo.value = data
+      applySignedKeyState(resolvedToken, data)
+      signedModelSyncError.value = ''
+      return true
+    }
+    catch (error) {
+      logger.error('刷新在线模型失败', error)
+      return false
+    }
+  }
 
-    const data = await getSignedKeyInfo(token)
-    signedKeyInfo.value = data
-    return true
+  async function ensureSignedModelsReady(timeoutMs = 5000) {
+    const resolvedToken = getResolvedToken()
+    if (resolvedToken == null) {
+      return
+    }
+    if (signedModelSyncPromise == null) {
+      signedModelSyncError.value = ''
+      isSignedModelSyncing.value = true
+      signedModelSyncPromise = refreshSignedKeyInfo(resolvedToken)
+        .then((ok) => {
+          if (!ok) {
+            signedModelSyncError.value = '在线模型同步失败，请稍后重试'
+          }
+        })
+        .finally(() => {
+          isSignedModelSyncing.value = false
+          signedModelSyncPromise = null
+        })
+    }
+
+    if (timeoutMs <= 0) {
+      await signedModelSyncPromise
+      return
+    }
+
+    let timedOut = false
+    await Promise.race([
+      signedModelSyncPromise,
+      new Promise<void>((resolve) => {
+        setTimeout(() => {
+          timedOut = true
+          resolve()
+        }, timeoutMs)
+      }),
+    ])
+
+    if (timedOut && isSignedModelSyncing.value) {
+      signedModelSyncError.value = '在线模型同步失败，请稍后重试'
+      isSignedModelSyncing.value = false
+    }
   }
 
   async function initSignedKey() {
     const key = await counter.storageGet<string>(signedKeyStorageKey)
     if (key == null) {
-      return
+      return false
     }
+    signedKeyBak.value = key
     const info = await counter.storageGet<SignedKeyInfo>(signedKeyInfoStorageKey)
     if (info != null) {
       signedKeyInfo.value = info
+      applySignedKeyState(key, info)
     }
-
-    if (await refreshSignedKeyInfo(key)) {
-      const userId = user.getUserId()?.toString()
-      const matchedUser = signedKeyInfo.value?.users.find(item => item.user_id === userId)
-      if (matchedUser == null) {
-        signedKeyBak.value = key
-      }
-      else {
-        signedKey.value = key
-        void client.GET('/v1/llm/model_list')
-          .then(async ({ data }) => {
-            const model = useModel()
-            model.modelData = [...model.modelData, ...(data as modelData[] ?? []).filter(item => !model.modelData.some(m => m.key === item.key))]
-          })
-      }
-    }
+    await restoreSignedModelCache(key)
+    void ensureSignedModelsReady().catch((error) => {
+      logger.error('后台同步在线模型失败', error)
+    })
+    return true
   }
 
   async function updateResume() {
@@ -273,7 +385,23 @@ export const useSignedKey = defineStore('signedKey', () => {
     }
   }
 
-  return { signedKey, signedKeyBak, client, netConf, signedKeyReqHandler, initSignedKey, sdbmCode, updateResume, getSignedKeyInfo, refreshSignedKeyInfo, signedKeyInfo, netNotification }
+  return {
+    signedKey,
+    signedKeyBak,
+    client,
+    netConf,
+    isSignedModelSyncing,
+    signedModelSyncError,
+    signedKeyReqHandler,
+    initSignedKey,
+    ensureSignedModelsReady,
+    sdbmCode,
+    updateResume,
+    getSignedKeyInfo,
+    refreshSignedKeyInfo,
+    signedKeyInfo,
+    netNotification,
+  }
 })
 
 window.__q_useSignedKey = useSignedKey

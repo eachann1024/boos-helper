@@ -16,6 +16,94 @@ export type MyJobListData = bossZpJobItemData & {
   getCard: () => Promise<bossZpCardData>
 }
 
+export function normalizeDetailToCard(data: bossZpDetailData): bossZpDetailData & bossZpCardData {
+  return {
+    ...data,
+    jobName: data.jobInfo.jobName,
+    postDescription: data.jobInfo.postDescription,
+    encryptJobId: data.jobInfo.encryptId,
+    atsDirectPost: false,
+    atsProxyJob: data.jobInfo.proxyJob === 1,
+    salaryDesc: data.jobInfo.salaryDesc,
+    cityName: data.jobInfo.locationName,
+    experienceName: data.jobInfo.experienceName,
+    degreeName: data.jobInfo.degreeName,
+    jobLabels: data.jobInfo.showSkills || [],
+    address: data.jobInfo.address,
+    lid: data.lid,
+    sessionId: data.sessionId || '',
+    securityId: data.securityId,
+    encryptUserId: data.jobInfo.encryptUserId,
+    bossName: data.bossInfo.name,
+    bossTitle: data.bossInfo.title,
+    bossAvatar: data.bossInfo.tiny,
+    online: data.bossInfo.bossOnline,
+    certificated: data.bossInfo.certificated,
+    activeTimeDesc: data.bossInfo.activeTimeDesc,
+    brandName: data.brandComInfo.brandName,
+    canAddFriend: true,
+    friendStatus: data.relationInfo.beFriend ? 1 : 0,
+    isInterested: data.relationInfo.interestJob ? 1 : 0,
+    login: true,
+  }
+}
+
+export function normalizeDetailToJobItem(data: bossZpDetailData): bossZpJobItemData {
+  return {
+    securityId: data.securityId,
+    bossAvatar: data.bossInfo.tiny,
+    bossCert: data.bossInfo.certificated ? 1 : 0,
+    encryptBossId: data.jobInfo.encryptUserId,
+    bossName: data.bossInfo.name,
+    bossTitle: data.bossInfo.title,
+    goldHunter: 0,
+    bossOnline: data.bossInfo.bossOnline,
+    encryptJobId: data.jobInfo.encryptId,
+    expectId: 0,
+    jobName: data.jobInfo.jobName,
+    lid: data.lid,
+    salaryDesc: data.jobInfo.salaryDesc,
+    jobLabels: data.jobInfo.showSkills || [],
+    jobValidStatus: data.jobInfo.invalidStatus ? 0 : 1,
+    iconWord: '',
+    skills: data.jobInfo.showSkills || [],
+    jobExperience: data.jobInfo.experienceName,
+    daysPerWeekDesc: '',
+    leastMonthDesc: '',
+    jobDegree: data.jobInfo.degreeName,
+    cityName: data.jobInfo.locationName,
+    areaDistrict: '',
+    businessDistrict: '',
+    jobType: data.jobInfo.jobType,
+    proxyJob: data.jobInfo.proxyJob,
+    proxyType: data.jobInfo.proxyType,
+    anonymous: data.jobInfo.anonymous,
+    outland: data.jobInfo.overseasInfo ? 1 : 0,
+    optimal: 0,
+    iconFlagList: [],
+    itemId: 0,
+    city: data.jobInfo.location,
+    isShield: 0,
+    atsDirectPost: false,
+    gps: {
+      longitude: data.jobInfo.longitude,
+      latitude: data.jobInfo.latitude,
+    },
+    lastModifyTime: data.brandComInfo.activeTime || Date.now(),
+    encryptBrandId: data.brandComInfo.encryptBrandId,
+    brandName: data.brandComInfo.brandName,
+    brandLogo: data.brandComInfo.logo,
+    brandStageName: data.brandComInfo.customerBrandStageName || data.brandComInfo.stageName,
+    brandIndustry: data.brandComInfo.industryName,
+    brandScaleName: data.brandComInfo.scaleName,
+    welfareList: (data.brandComInfo.labels || [])
+      .map((item: any) => (typeof item === 'string' ? item : item?.name ?? ''))
+      .filter(Boolean),
+    industry: data.brandComInfo.industry,
+    contact: Boolean(data.relationInfo.beFriend || data.oneKeyResumeInfo.alreadySend),
+  }
+}
+
 export class JobList {
   private _vue_jobList = ref<bossZpJobItemData[]>([])
   private _vue_jobDetail = ref<bossZpDetailData>()
@@ -83,35 +171,7 @@ export class JobList {
             //   }
             //   return r.data.zpData
             // })
-            const card: bossZpDetailData & bossZpCardData = {
-              ...data,
-              jobName: data.jobInfo.jobName,
-              postDescription: data.jobInfo.postDescription,
-              encryptJobId: data.jobInfo.encryptId,
-              atsDirectPost: false,
-              atsProxyJob: data.jobInfo.proxyJob === 1,
-              salaryDesc: data.jobInfo.salaryDesc,
-              cityName: data.jobInfo.locationName,
-              experienceName: data.jobInfo.experienceName,
-              degreeName: data.jobInfo.degreeName,
-              jobLabels: data.jobInfo.showSkills || [],
-              address: data.jobInfo.address,
-              lid: data.lid,
-              sessionId: data.sessionId || '',
-              securityId: data.securityId,
-              encryptUserId: data.jobInfo.encryptUserId,
-              bossName: data.bossInfo.name,
-              bossTitle: data.bossInfo.title,
-              bossAvatar: data.bossInfo.tiny,
-              online: data.bossInfo.bossOnline,
-              certificated: data.bossInfo.certificated,
-              activeTimeDesc: data.bossInfo.activeTimeDesc,
-              brandName: data.brandComInfo.brandName,
-              canAddFriend: true,
-              friendStatus: 0,
-              isInterested: data.relationInfo.interestJob ? 1 : 0,
-              login: true,
-            }
+            const card = normalizeDetailToCard(data)
             this._map[item.encryptJobId].card = card
             return card
           },

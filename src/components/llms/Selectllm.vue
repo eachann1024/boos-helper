@@ -233,6 +233,7 @@ async function savePrompt() {
   if (props.data === 'aiFiltering') {
     conf.formData[props.data].score = score.value
   }
+  await model.persistModelNow()
   await conf.confSaving()
   // ElMessage.success('保存成功')
   // show.value = false
@@ -337,7 +338,7 @@ async function copyOnlineResume() {
         mitem
       </ElLink>
       来渲染模板。在多对话模式下，只有最后的消息会使用模板。
-      <ElLink type="primary" href="https://github.com/Ocyss/boos-helper/blob/master/src/types/bossData.d.ts" target="_blank">
+      <ElLink type="primary" href="https://github.com/Eachann/boos-helper/blob/master/src/types/bossData.d.ts" target="_blank">
         变量表
       </ElLink>
       <br>

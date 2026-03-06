@@ -9,6 +9,10 @@ import { parseGptJson } from '@/utils/parse'
 export const sameCompanyKey = 'local:sameCompany'
 export const sameHrKey = 'local:sameHr'
 
+function sleep(ms: number) {
+  return new Promise(resolve => setTimeout(resolve, ms))
+}
+
 export async function requestCard(params: { securityId: string, lid: string }) {
   return axios.get<{
     code: number
@@ -92,7 +96,7 @@ export async function sendPublishReq(
 export async function requestBossData(
   card: bossZpCardData,
   errorMsg?: string,
-  retries = 3,
+  retries = 5,
 ): Promise<bossZpBossData> {
   if (retries === 0) {
     throw new GreetError(errorMsg ?? '重试多次失败')
@@ -121,6 +125,7 @@ export async function requestBossData(
     })
     if (res.data.code !== 0) {
       if (res.data.message === '非好友关系') {
+        await sleep((6 - retries) * 1000)
         return await requestBossData(card, '非好友关系', retries - 1)
       }
       throw new GreetError(`状态错误:${res.data.message}`)
@@ -131,6 +136,7 @@ export async function requestBossData(
     if (e instanceof GreetError) {
       throw e
     }
+    await sleep((6 - retries) * 500)
     return requestBossData(card, e?.message as string, retries - 1)
   }
 }

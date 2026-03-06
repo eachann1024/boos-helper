@@ -35,6 +35,7 @@ export interface modelData {
 
 export const useModel = defineStore('model', () => {
   const _modelData = ref<modelData[]>([])
+  const isLoaded = ref(false)
 
   const modelData = computed({
     get() {
@@ -46,9 +47,30 @@ export const useModel = defineStore('model', () => {
   })
 
   async function init() {
+    if (isLoaded.value) {
+      return
+    }
     const data = await counter.storageGet<modelData[]>(confModelKey, [])
     logger.debug('ai模型数据', data)
-    modelData.value.push(...data)
+    mergeModelData(data ?? [])
+    isLoaded.value = true
+  }
+
+  function mergeModelData(items: modelData[]) {
+    if (items.length === 0) {
+      return
+    }
+    const merged = [..._modelData.value]
+    for (const item of items) {
+      if (!merged.some(model => model.key === item.key)) {
+        merged.push(item)
+      }
+    }
+    _modelData.value = merged
+  }
+
+  async function persistCurrentModels() {
+    await counter.storageSet(confModelKey, toRaw(modelData.value).filter(item => item.vip == null))
   }
 
   function getModel(model: modelData | undefined, template: string | prompt, vip = false): llm | SignedKeyLLM {
@@ -80,14 +102,17 @@ export const useModel = defineStore('model', () => {
   }
 
   async function save() {
-    await counter.storageSet(confModelKey, toRaw(modelData.value).filter(item => item.vip == null))
+    await persistCurrentModels()
     ElMessage.success('保存成功')
   }
 
   return {
     initModel: init,
     modelData,
+    isModelLoaded: isLoaded,
+    mergeModelData,
     saveModel: save,
+    persistModelNow: persistCurrentModels,
     getModel,
     SignedKeyLLM,
     llmIcon,

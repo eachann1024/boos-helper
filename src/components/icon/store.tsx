@@ -196,5 +196,5 @@ export const store: Record<string, [() => JSX.Element, string, string, string]> 
   crx: [CrxStore, '国内Chrome用户推荐，Chrome 同步无需魔法，更新速度未知', 'https://www.crxsoso.com/webstore/detail/ogkmgjbagackkdlcibcailacnncgonbn', 'https://img.shields.io/badge/v%3F.%3F.%3F-EF7C3D'],
   edge: [EdgeStore, 'Edge浏览器用户推荐，除了更新慢一些。审核速度最慢', 'https://microsoftedge.microsoft.com/addons/detail/jcllnbjfeamhihjpfjlclhdnjmggbgal', 'https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fmicrosoftedge.microsoft.com%2Faddons%2Fgetproductdetailsbycrxid%2Fjcllnbjfeamhihjpfjlclhdnjmggbgal&query=version&prefix=v&label=&color=EF7C3D'],
   firefox: [FirefoxStore, 'Firefox 浏览器用户，无需魔法, 审核速度最快', 'https://addons.mozilla.org/zh-CN/firefox/addon/boss-helper/', 'https://img.shields.io/amo/v/boss-helper?label='],
-  github: [Github, 'Github, 需要魔法，没有审核，随时更新', 'https://github.com/Ocyss/boos-helper/releases/latest', 'https://img.shields.io/github/v/release/Ocyss/boos-helper?label='],
+  github: [Github, 'Github, 需要魔法，没有审核，随时更新', 'https://github.com/Eachann/boos-helper/releases/latest', 'https://img.shields.io/github/v/release/Eachann/boos-helper?label='],
 }

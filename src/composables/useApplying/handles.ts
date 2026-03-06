@@ -1,11 +1,7 @@
 import type { StepFactory } from './type'
-import type { logData } from '@/stores/log'
-import { ElMessage } from 'element-plus'
 import { miTem } from 'mitem'
-import { useChat } from '@/composables/useChat'
 import { useModel } from '@/composables/useModel'
 import { useStatistics } from '@/composables/useStatistics'
-import { Message } from '@/composables/useWebSocket'
 import { counter } from '@/message'
 
 import { useConf } from '@/stores/conf'
@@ -26,83 +22,14 @@ import {
   RepeatError,
   SalaryError,
 } from '@/types/deliverError'
-import { getCurDay, getCurTime } from '@/utils'
 import { SignedKeyLLM } from '../useModel/signedKey'
-import { errorHandle, parseFiltering, rangeMatch, rangeMatchFormat, requestBossData, sameCompanyKey, sameHrKey } from './utils'
-
-function extractTextContent(content: unknown): string {
-  if (typeof content === 'string') {
-    return content.trim()
-  }
-  if (Array.isArray(content)) {
-    return content
-      .map((item) => {
-        if (typeof item === 'string') {
-          return item
-        }
-        if (item && typeof item === 'object' && 'text' in item && typeof item.text === 'string') {
-          return item.text
-        }
-        return ''
-      })
-      .join('')
-      .trim()
-  }
-  if (content && typeof content === 'object' && 'text' in content && typeof content.text === 'string') {
-    return content.text.trim()
-  }
-  return ''
-}
-
-function buildSendTarget(ctx: logData): string {
-  const encryptBossId = ctx.bossData?.data.encryptBossId || ctx.listData.encryptBossId
-  const targetName = ctx.bossData?.data.name || ctx.listData.bossName
-  if (targetName && encryptBossId) {
-    return `${targetName}(${encryptBossId})`
-  }
-  return targetName || encryptBossId || '未知联系人'
-}
-
-function buildSendLogMessage(target: string, content: string, fromAI: boolean): string {
-  const source = fromAI ? 'AI生成消息' : '消息内容'
-  return `发送给 ${target} 发送成功；${source}：${content}`
-}
+import { chatBossMessage, prepareAiGreeting, sendGreetingByContent } from './greeting'
+import { errorHandle, parseFiltering, rangeMatch, rangeMatchFormat, sameCompanyKey, sameHrKey } from './utils'
 
 export function handles() {
-  const { chatMessages } = useChat()
   const model = useModel()
   const conf = useConf()
   const statistics = useStatistics()
-
-  async function ensureBossData(ctx: logData) {
-    if (ctx.bossData == null) {
-      const bossData = await requestBossData(ctx.listData.card!)
-      ctx.bossData = bossData
-    }
-  }
-
-  async function sendGreetingByContent(ctx: logData, uid: string | number, content: string, fromAI: boolean) {
-    const finalContent = extractTextContent(content)
-    if (!finalContent) {
-      throw new GreetError('未生成可发送的招呼语，已终止发送')
-    }
-    await ensureBossData(ctx)
-    const target = buildSendTarget(ctx)
-
-    const buf = new Message({
-      form_uid: uid.toString(),
-      to_uid: ctx.bossData!.data.bossId.toString(),
-      to_name: ctx.bossData!.data.encryptBossId, // encryptUserId
-      content: finalContent,
-    })
-
-    const result = await buf.send()
-    if (!result.ok) {
-      ctx.message = `发送给 ${target} 失败；${fromAI ? 'AI生成消息' : '消息内容'}：${finalContent}`
-      throw new GreetError(result.message)
-    }
-    ctx.message = buildSendLogMessage(target, finalContent, fromAI)
-  }
 
   const communicated: StepFactory = () => {
     return async ({ data }) => {
@@ -493,15 +420,9 @@ export function handles() {
 
   const customGreeting: StepFactory = () => {
     const template = miTem.compile(conf.formData.customGreeting.value)
-    const uid = useUser().getUserId()
-    if (uid == null) {
-      ElMessage.error('没有获取到uid,请刷新重试')
-      throw new GreetError('没有获取到uid')
-    }
     return {
       after: async (_args, ctx) => {
         try {
-          await ensureBossData(ctx)
           let msg = conf.formData.customGreeting.value
           if (conf.formData.greetingVariable.value && ctx.listData.card) {
             msg = template({
@@ -517,7 +438,7 @@ export function handles() {
               },
             })
           }
-          await sendGreetingByContent(ctx, uid, msg, false)
+          await sendGreetingByContent(ctx, msg, false)
         }
         catch (e) {
           throw new GreetError(errorHandle(e))
@@ -526,62 +447,13 @@ export function handles() {
     }
   }
 
-  function chatBossMessage(ctx: logData, msg: string) {
-    const d = new Date()
-    chatMessages.value.push({
-      id: d.getTime(),
-      role: 'boss',
-      content: msg,
-      date: [getCurDay(d), getCurTime(d)],
-      name: ctx.listData.brandName,
-      avatar: ctx.listData.brandLogo,
-    })
-  }
-
   const aiGreeting: StepFactory = () => {
-    const curModel = model.modelData.find(
-      v => conf.formData.aiGreeting.model === v.key,
-    )
-    if (!curModel && !conf.formData.aiGreeting.vip) {
-      ElMessage.warning('没有找到招呼语的模型')
-      return
-    }
-    const gpt = model.getModel(curModel, conf.formData.aiGreeting.prompt, conf.formData.aiGreeting.vip)
-    if (gpt instanceof SignedKeyLLM) {
-      void gpt.checkResume()
-    }
-    const uid = useUser().getUserId()
-    if (uid == null) {
-      ElMessage.error('没有获取到uid,请刷新重试')
-      throw new GreetError('没有获取到uid')
-    }
     return {
       fn: async (_args, ctx) => {
-        // const chatInput = chatInputInit(model)
         try {
-          await ensureBossData(ctx)
-          const { content, prompt, reasoning_content } = await gpt.message({
-            data: {
-              data: ctx.listData,
-              boss: ctx.bossData,
-              card: ctx.listData.card!,
-              amap: {},
-            },
-            // onStream: chatInput.handle,
-            onPrompt: s => chatBossMessage(ctx, s),
-          }, 'aiGreeting')
-          const aiContent = extractTextContent(content)
-          if (!aiContent) {
-            throw new GreetError('AI返回空内容')
-          }
-          ctx.aiGreetingQ = prompt ?? 'AI请求失败'
-          ctx.aiGreetingA = aiContent
-          ctx.aiGreetingR = reasoning_content
-          ctx.aiGreetingPrepared = aiContent
-          // chatInput.end(content)
+          await prepareAiGreeting(ctx)
         }
         catch (e) {
-          // chatInput.end('Err~')
           throw new GreetError(errorHandle(e))
         }
       },
@@ -591,7 +463,7 @@ export function handles() {
           if (!finalContent) {
             throw new GreetError('未生成可发送的招呼语，已终止发送')
           }
-          await sendGreetingByContent(ctx, uid, finalContent, true)
+          await sendGreetingByContent(ctx, finalContent, true)
         }
         catch (e) {
           throw new GreetError(errorHandle(e))

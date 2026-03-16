@@ -45,7 +45,12 @@ function patchNetworkCapture() {
   window.fetch = async (...args) => {
     const response = await originalFetch(...args)
     try {
-      const requestUrl = typeof args[0] === 'string' ? args[0] : args[0]?.url
+      const requestTarget = args[0]
+      const requestUrl = typeof requestTarget === 'string'
+        ? requestTarget
+        : requestTarget instanceof URL
+          ? requestTarget.toString()
+          : requestTarget?.url
       if (requestUrl?.includes(DETAIL_API_PATH)) {
         response.clone().json().then(cacheDetailPayload).catch(() => {})
       }
@@ -58,9 +63,15 @@ function patchNetworkCapture() {
   const originalOpen = XMLHttpRequest.prototype.open
   const originalSend = XMLHttpRequest.prototype.send
 
-  XMLHttpRequest.prototype.open = function (method, url, ...args) {
+  XMLHttpRequest.prototype.open = function (
+    method: string,
+    url: string | URL,
+    async = true,
+    username?: string | null,
+    password?: string | null,
+  ) {
     ;(this as XMLHttpRequest & { __bossHelperUrl?: string }).__bossHelperUrl = typeof url === 'string' ? url : url.toString()
-    return originalOpen.call(this, method, url, ...args)
+    return (originalOpen as any).call(this, method, url, async, username, password)
   }
 
   XMLHttpRequest.prototype.send = function (...args) {
@@ -148,11 +159,6 @@ async function start() {
   })
 
   void main({ path: window.location.pathname })
-
-//   document.documentElement.classList.toggle(
-//     "dark",
-//     GM_getValue("theme-dark", false)
-//   );
 
   try {
     const v = await getRootVue()

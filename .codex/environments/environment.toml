@@ -6,11 +6,6 @@ name = "boos-helper"
 script = ""
 
 [[actions]]
-name = "运行"
+name = "chrome"
 icon = "run"
 command = "pnpm build:chrome"
-
-[[actions]]
-name = "run"
-icon = "tool"
-command = "pnpm run dev:chrome:persistent"

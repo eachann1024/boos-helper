@@ -1,4 +1,4 @@
 - 启动：pnpm run dev:chrome:persistent
 - 始终简体中文回复
-- 修改完成后应该执行：pnpm build:chrome
+- 如果是修改业务，完成后应该执行：pnpm build:chrome
 - 不要自行操作浏览器验证

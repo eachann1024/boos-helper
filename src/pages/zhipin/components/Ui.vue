@@ -1,7 +1,6 @@
 <script lang="ts" setup>
 import { useMouse, useMouseInElement } from '@vueuse/core'
 import {
-  ElBadge,
   ElCheckbox,
   ElConfigProvider,
   ElLink,
@@ -167,8 +166,6 @@ function tagOpen(url: string) {
   window.open(url)
 }
 const VITE_VERSION = __APP_VERSION__
-
-
 </script>
 
 <template>

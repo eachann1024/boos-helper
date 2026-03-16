@@ -7,7 +7,7 @@ import 'element-plus/theme-chalk/src/message.scss'
 export default defineContentScript({
   matches: ['*://zhipin.com/*', '*://*.zhipin.com/*'],
   runAt: 'document_start',
-  async main(_ctx) {
+  async main(_ctx: unknown) {
     provideContentCounter(new ProvideContentAdapter())
 
     await injectScript('/main-world.js', {

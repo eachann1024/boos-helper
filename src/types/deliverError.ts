@@ -1,5 +1,9 @@
 export const errMap = new Map<string, boolean>()
 
+interface CustomErrorOptions {
+  cause?: unknown
+}
+
 function createCustomError(
   name: string,
   state = 'warning' as 'warning' | 'danger',
@@ -10,11 +14,14 @@ function createCustomError(
     state: 'warning' | 'danger'
     constructor(
       message: string,
-      options?: ErrorOptions,
+      options?: CustomErrorOptions,
     ) {
-      super(message, options)
+      super(message)
       this.name = name
       this.state = state
+      if (options?.cause !== undefined) {
+        ;(this as Error & CustomErrorOptions).cause = options.cause
+      }
       Object.setPrototypeOf(this, CustomError.prototype)
     }
   }

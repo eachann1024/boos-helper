@@ -8,17 +8,17 @@ import {
   ElMessage,
 } from 'element-plus'
 import { ref } from 'vue'
-import logVue from '@/components/conf/log.vue'
-import storeVue from '@/components/conf/store.vue'
-import userVue from '@/components/conf/user.vue'
+import LogVue from '@/components/conf/Log.vue'
+import StoreVue from '@/components/conf/Store.vue'
+import UserVue from '@/components/conf/User.vue'
 import { counter } from '@/message'
 
 const confBox = ref(false)
 
 const confs = {
-  store: { name: '存储配置', component: storeVue, disabled: true },
-  user: { name: '账号配置', component: userVue, disabled: false },
-  log: { name: '日志配置', component: logVue, disabled: true },
+  store: { name: '存储配置', component: StoreVue, disabled: true },
+  user: { name: '账号配置', component: UserVue, disabled: false },
+  log: { name: '日志配置', component: LogVue, disabled: true },
 }
 
 const confKey = ref<keyof typeof confs>('store')
@@ -79,5 +79,3 @@ async function themeChange() {
     </Teleport>
   </ElConfigProvider>
 </template>
-
-

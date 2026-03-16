@@ -4,7 +4,7 @@ import { ElButton, ElSpace } from 'element-plus'
 import { ref } from 'vue'
 import formSwitch from '@/components/form/FormSwitch.vue'
 import configLLM from '@/components/llms/ConfigLLM.vue'
-import selectLLM from '@/components/llms/selectLLM.vue'
+import SelectLlm from '@/components/llms/Selectllm.vue'
 import { useCommon } from '@/composables/useCommon'
 import { formInfoData, useConf } from '@/stores/conf'
 
@@ -81,7 +81,7 @@ function change(v: Partial<FormDataAi>) {
   </div>
 
   <configLLM v-model="aiConfBoxShow" />
-  <selectLLM
+  <SelectLlm
     v-if="aiBoxShow && aiBox !== 'record'"
     v-model="aiBoxShow"
     v-key="aiBox"

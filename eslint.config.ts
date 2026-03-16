@@ -1,7 +1,7 @@
 import antfu from '@antfu/eslint-config'
 
 export default antfu({
-  ignores: ['.wxt/**', '.output/**', 'src/types/openapi.d.ts'],
+  ignores: ['.output/**', 'src/types/openapi.d.ts'],
   vue: true,
   typescript: true,
   rules: {

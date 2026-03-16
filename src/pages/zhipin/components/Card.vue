@@ -3,7 +3,7 @@ import type { ComponentPublicInstance } from 'vue'
 import type { EncryptJobId } from '@/stores/jobs'
 import { ElSwitch } from 'element-plus'
 import { ref, watch } from 'vue'
-import JobCard from '@/components/JobCard.vue'
+import JobCard from '@/components/Jobcard.vue'
 import { jobList } from '@/stores/jobs'
 import { useDeliver } from '../hooks/useDeliver'
 

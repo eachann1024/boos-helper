@@ -40,7 +40,7 @@ export default defineConfig({
     css: {
       preprocessorOptions: {
         scss: {
-          api: 'modern-compiler', // or 'modern'
+          api: 'modern-compiler',
           additionalData: `@forward 'element-plus/theme-chalk/src/mixins/config.scss' with (
   $namespace: 'ehp'
 );`,
@@ -49,10 +49,9 @@ export default defineConfig({
     },
   }),
   hooks: {
-    'build:manifestGenerated': (wxt, manifest) => {
+    'build:manifestGenerated': (_wxt, manifest) => {
       manifest.content_scripts ??= []
       manifest.content_scripts.push({
-        // Build extension once to see where your CSS get's written to
         css: ['/assets/main-world.css'],
         matches,
       })

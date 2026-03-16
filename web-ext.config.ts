@@ -1,4 +1,5 @@
 import { resolve } from 'node:path'
+import process from 'node:process'
 import { defineWebExtConfig } from 'wxt'
 
 const chromeUserDataDir = resolve(process.cwd(), '.wxt/chrome-user-data')

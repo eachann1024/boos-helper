@@ -43,3 +43,12 @@ interface Window {
 }
 
 declare const __APP_VERSION__: string
+
+interface ImportMetaEnv {
+  readonly PROD?: boolean
+  readonly TEST?: boolean
+}
+
+interface ImportMeta {
+  readonly env: ImportMetaEnv
+}

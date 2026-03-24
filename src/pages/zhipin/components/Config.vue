@@ -323,7 +323,7 @@ const SalaryRangeComponent = defineComponent({
     </div>
   </ElForm>
   <div style="margin-top: 15px">
-    <ElButton type="success" data-help="保存配置，会自动刷新页面。" @click="conf.confSaving">
+    <ElButton type="success" data-help="保存配置" @click="conf.confSaving">
       保存配置
     </ElButton>
     <ElButton type="warning" data-help="重新加载本地配置" @click="conf.confReload">

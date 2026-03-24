@@ -122,10 +122,7 @@ export const useConf = defineStore('conf', () => {
     try {
       await persistCurrentConfig(v)
       logger.debug('formData保存', v)
-      ElMessage.success('保存成功, 3s 之后自动刷新')
-      setTimeout(() => {
-        window.location.reload()
-      }, 3000)
+      ElMessage.success('保存成功')
     }
     catch (error: any) {
       ElMessage.error(`保存失败: ${error.message}`)
